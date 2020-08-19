@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SelectionBoxCollisionDectector : MonoBehaviour
+public class SelectionBox : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
