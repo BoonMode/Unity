@@ -27,13 +27,6 @@ public class CameraController : MonoBehaviour
         RotateCamera();
         ScrollSpeed();
     }
-    private void Update()
-    {
-        if (Vector3.Distance(new Vector3(0, 0, 0), gameObject.transform.position) > PanLimit)
-        {
-            gameObject.transform.position = new Vector3(0, gameObject.transform.position.y, 0);
-        }
-    }
     void CenterCameraOnCameraRig()
     {
         ActualCamera.transform.LookAt(CameraRig.transform.position);
