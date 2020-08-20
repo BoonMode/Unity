@@ -42,7 +42,7 @@ public class StockPileManager : MonoBehaviour
     }
     Item FindNeededItem(GameObject Citizen, Item NeededItem)
     {
-        foreach (GameObject item in GameManager.Instance.playerOwnedManager.AllStoredItems)
+        foreach (GameObject item in PlayerOwnedManager.Instance.AllStoredItems)
         {
             Item itemScript = item.GetComponent<Item>();
             if (itemScript.HauledBy == null || itemScript.HauledBy == Citizen)
