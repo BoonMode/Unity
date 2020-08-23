@@ -65,7 +65,7 @@ public class Selection : MonoBehaviour
             {
                 GameObject SelectionCollider = CreateSelectionMesh(BottomLeftHit.point, BottomRightHit.point, TopLeftHit.point, TopRightHit.point);
 
-              // Destroy(SelectionCollider, .1f);
+                Destroy(SelectionCollider, .1f);
             }
             SelectionBox.gameObject.SetActive(false);
         }
