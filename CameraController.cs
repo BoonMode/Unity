@@ -25,7 +25,7 @@ public class CameraController : MonoBehaviour
         MouseWheel();
         DragCamera();
         RotateCamera();
-        ScrollSpeed();
+        Scroll();
     }
     void CenterCameraOnCameraRig()
     {
@@ -102,7 +102,7 @@ public class CameraController : MonoBehaviour
             Cursor.lockState = CursorLockMode.None;
         }
     }
-    void ScrollSpeed()
+    void Scroll()
     {
         if (Input.GetAxis("LeftShift") > 0)
         {
