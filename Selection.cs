@@ -44,18 +44,22 @@ public class Selection : MonoBehaviour
         if (Input.GetMouseButton(0) && IsDragging())
         {
             SelectionBox.gameObject.SetActive(true);
+            // Gets the difference between the mouse position and the selectionboxstart
             float width = Input.mousePosition.x - SelectionBoxStart.x;
             float height = Input.mousePosition.y - SelectionBoxStart.y;
+            // Keeps the result always positive
             SelectionBox.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
+            // maintains the selection boxes start point by dividing the hieght and width by half 
             SelectionBox.position = new Vector3(SelectionBoxStart.x + width / 2, SelectionBoxStart.y + height / 2, 0);
         }
         if (Input.GetMouseButtonUp(0) && IsDragging())
         {
+           // assigns screen space Vector3s to corners of the selection box UI
             Vector3 TopRight = Input.mousePosition;
             Vector3 BottomLeft = SelectionBoxStart;
             Vector3 BottomRight = new Vector3(TopRight.x, BottomLeft.y, 0);
             Vector3 TopLeft = new Vector3(BottomLeft.x, TopRight.y, 0);
-
+            // raycasts onto the ground out from the screen space vector
             Physics.Raycast(Camera.main.ScreenPointToRay(TopRight), out RaycastHit TopRightHit, Mathf.Infinity, Interactable);
             Physics.Raycast(Camera.main.ScreenPointToRay(BottomLeft), out RaycastHit BottomLeftHit, Mathf.Infinity, Interactable);
             Physics.Raycast(Camera.main.ScreenPointToRay(BottomRight), out RaycastHit BottomRightHit, Mathf.Infinity, Interactable);
@@ -79,16 +83,17 @@ public class Selection : MonoBehaviour
         Vector3[] vectices = new Vector3[8];
         Vector2[] uv = new Vector2[8];
         int[] triangles = new int[12];
-
+        //assigns vertices of the selection collider mesh from the raycast hits
         vectices[0] = TopLeft;
         vectices[1] = TopRight;
         vectices[2] = BottomLeft;
         vectices[3] = BottomRight;
+        //adds a constant float to the Y vector of the mesh to create a cube
         vectices[4] = new Vector3(TopLeft.x, TopLeft.y += SelectionBoxHeight, TopLeft.z);
         vectices[5] = new Vector3(TopRight.x, TopRight.y += SelectionBoxHeight, TopRight.z);
         vectices[6] = new Vector3(BottomLeft.x, BottomLeft.y += SelectionBoxHeight, BottomLeft.z);
         vectices[7] = new Vector3(BottomRight.x, BottomRight.y += SelectionBoxHeight, BottomRight.z);
-
+        
         uv[0] = new Vector2(TopLeft.x, TopLeft.y);
         uv[1] = new Vector2(TopRight.x, TopRight.y);
         uv[2] = new Vector2(BottomLeft.x, BottomLeft.y);
@@ -119,6 +124,7 @@ public class Selection : MonoBehaviour
         mesh.triangles = triangles;
         mesh.uv = uv;
 
+        // adds a custom selectionbox comoponent to register hits
         GameObject SelectionCollider = new GameObject("Mesh", typeof(MeshFilter), typeof(MeshCollider), typeof(SelectionBox), typeof(Rigidbody));
 
         SelectionCollider.GetComponent<Rigidbody>().useGravity = false;
