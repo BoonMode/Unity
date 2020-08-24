@@ -21,6 +21,7 @@ public class StockPileManager : MonoBehaviour
             _instance = this;
         }
     }
+    // adds a requestor (Citizen) to a list and the requested item using a custom clas
     public StockPileRequest AddtoQueueandWaitForItem(GameObject Citizen , Item NeededItem)
     {
         StockPileRequest FoundItem = new StockPileRequest();
@@ -30,6 +31,7 @@ public class StockPileManager : MonoBehaviour
         }
         if (Queue[0] == Citizen)
         {
+        // if citizen is first in que checks for item
             FoundItem.NeededItem = FindNeededItem(Citizen, NeededItem);
             if (FoundItem != null)
             {
@@ -45,10 +47,12 @@ public class StockPileManager : MonoBehaviour
         foreach (GameObject item in PlayerOwnedManager.Instance.AllStoredItems)
         {
             Item itemScript = item.GetComponent<Item>();
+            // checks if item is reserved or not
             if (itemScript.HauledBy == null || itemScript.HauledBy == Citizen)
             {
                 if (itemScript.GetItemID == NeededItem.GetItemID)
                 {
+                // assigns who reserved the item to the item 
                     itemScript.HauledBy = Citizen;
                     return itemScript;
                 }
