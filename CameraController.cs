@@ -1,118 +1,61 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    GameManager gameManager;
-    public GameObject CameraRig;
-    public GameObject ActualCamera;
-    float PanSpeed = 20;
-    float PanLimit = 5000;
+    PlayerMovementController Player;
+    [SerializeField] float CameraDampening = 2; 
+    float CameraPlayerXDifference, CameraPlayerYDifference;
 
-    float ScrollSpeed = 500;
-    float ScrollMin = 25;
-    float ScrollMax = 200;
+    // when moving vertically and horizontally it doubles the speed of the camera
+    [SerializeField] float DualMovementDivider = 1.6f;
 
-    float CurrentDistance = 0;
-
-    private void Start()
-    {
-        gameManager = GameManager.Instance;
-    }
     private void FixedUpdate()
     {
-        CenterCameraOnCameraRig();
-        WASD();
-        MouseWheel();
-        DragCamera();
-        RotateCamera();
-        Scroll();
-    }
-    void CenterCameraOnCameraRig()
-    {
-        ActualCamera.transform.LookAt(CameraRig.transform.position);
-    }
-    void WASD()
-    {
-        gameObject.transform.position += new Vector3(gameObject.transform.forward.x, 0, gameObject.transform.forward.z) * Input.GetAxis("W/S") * PanSpeed * Time.deltaTime / Time.timeScale;
-        gameObject.transform.position += gameObject.transform.right * Input.GetAxis("A/D") * PanSpeed * Time.deltaTime / Time.timeScale;
-    }
-    void MouseWheel()
-    {
-        if (Input.GetAxis("MouseWheel") != 0 && gameManager.buildingPlacementManager.IsPlacing == false)
+        if (Player != null)
         {
-            CurrentDistance = Vector3.Distance(CameraRig.transform.position, ActualCamera.transform.position);
-            if (CurrentDistance > ScrollMin)
-            {
-                if (Input.GetAxis("MouseWheel") > 0)
-                {
-                    ActualCamera.transform.position += ActualCamera.transform.forward * Input.GetAxis("MouseWheel") * ScrollSpeed * Time.deltaTime / Time.timeScale;
-                }
-            }
-            if (CurrentDistance < ScrollMax)
-            {
-                if (Input.GetAxis("MouseWheel") < 0)
-                {
-                    ActualCamera.transform.position += ActualCamera.transform.forward * Input.GetAxis("MouseWheel") * ScrollSpeed * Time.deltaTime / Time.timeScale;
-                }
-            }
+            GetCameraPlayerPositionDifference();
+            CameraChasePlayer();
+        }
+        else if (GameManager.Instance.GetCurrentPlayerObject != null)
+        {
+            Player = GameManager.Instance.GetCurrentPlayerObject.GetComponent<PlayerMovementController>();
         }
     }
-    void DragCamera()
+    void GetCameraPlayerPositionDifference()
     {
-        if (Input.GetAxis("LeftCtrl") != 0)
+        CameraPlayerXDifference = gameObject.transform.position.x - Player.transform.position.x;
+        CameraPlayerYDifference = gameObject.transform.position.y - Player.transform.position.y;
+    }
+    void CameraChasePlayer()
+    {
+        if (DualInput())
         {
-            Cursor.lockState = CursorLockMode.Locked;
-            PanSpeed = 500;
-            ScrollSpeed = 5000;
-            gameObject.transform.position += new Vector3(gameObject.transform.forward.x, 0, gameObject.transform.forward.z) * -Input.GetAxis("Mouse Y") * PanSpeed * Time.deltaTime;
-            gameObject.transform.position += gameObject.transform.right * -Input.GetAxis("Mouse X") * PanSpeed * Time.deltaTime;
+            gameObject.transform.position += HorizontalMovement() / DualMovementDivider;
+            gameObject.transform.position += VerticalMovement() / DualMovementDivider;
         }
         else
         {
-            Cursor.lockState = CursorLockMode.None;
+            gameObject.transform.position += HorizontalMovement();
+            gameObject.transform.position += VerticalMovement();
         }
+
     }
-    void RotateCamera()
+    Vector3 HorizontalMovement()
     {
-        if (Input.GetAxis("Fire3") != 0)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            float DirectionX = Input.GetAxis("Mouse X");
-            float DirectionY = Input.GetAxis("Mouse Y");
-
-            float rotAmountX = DirectionX / Time.timeScale;
-            float rotAmountY = DirectionY / Time.timeScale;
-
-            Vector3 CameraRotation = gameObject.transform.rotation.eulerAngles;
-            CameraRotation.y += rotAmountX;
-            CameraRotation.x -= rotAmountY;
-            if (CameraRotation.x < 0)
-            {
-                CameraRotation.x = 0;
-            }
-            if (CameraRotation.x > 60)
-            {
-                CameraRotation.x = 60;
-            }
-
-            gameObject.transform.rotation = Quaternion.Euler(CameraRotation);
-        }
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-        }
+        return Vector3.right * -CameraPlayerXDifference * Player.GetCurrentMoveSpeed * Time.fixedDeltaTime / CameraDampening;
     }
-    void Scroll()
+    Vector3 VerticalMovement()
     {
-        if (Input.GetAxis("LeftShift") > 0)
+        return Vector3.up * -CameraPlayerYDifference * Player.GetCurrentMoveSpeed * Time.fixedDeltaTime / CameraDampening;
+    }
+    bool DualInput()
+    {
+        if (CameraPlayerXDifference > 1 && CameraPlayerYDifference > 1 || CameraPlayerXDifference < -1 && CameraPlayerYDifference < -1 || CameraPlayerXDifference < -1 && CameraPlayerYDifference > 1 || CameraPlayerXDifference > 1 && CameraPlayerYDifference < -1)
         {
-            PanSpeed = 100;
-            ScrollSpeed = 5000;
+            return true;
         }
-        else
-        {
-            ScrollSpeed = 1000;
-            PanSpeed = 20;
-        }
+        return false;
     }
 }
